@@ -1,0 +1,16 @@
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Mm]emoryCaptures/
+/[Aa]ssets/Plugins/Android/
+/[Aa]ssets/Plugins/iOS/
+
+/[Aa]ssets/*/Editor/
+/[Aa]ssets/*/Plugins/Android/
+/[Aa]ssets/*/Plugins/iOS/
+
+/[Pp]ackages/manifest.json
+/[Pp]ackages/*/package.json
