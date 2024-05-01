@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
 {
-    private static int health = 4;
+    private static int health = 20;
     //свойство для подсчета кол-ва жизней у персонажа
     public static int Health { get { return health; } }
 
@@ -12,12 +12,11 @@ public class PlayerHealth : MonoBehaviour
     public static void takeHealth()
     {
         if (health > 0)
-        {
             health--;
-        }
-        else
-        {
-            //запуск метода игра окончена (перезапуск игры)
-        }
+    }
+
+    public static void setFullHP()
+    {
+        health = 4;
     }
 }

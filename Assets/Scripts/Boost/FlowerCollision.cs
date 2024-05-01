@@ -8,8 +8,13 @@ public class FlowerCollision : MonoBehaviour
     {
         if (collision.gameObject.tag == "Player")
         {
-            //во 2ой версии здесь будет условие если Player.Level == Player.MarioLevel.ATTACKING тогда +1000 очков
-            Player.Level = Player.MarioLevel.ATTACKING;
+            if(Player.Level == Player.MarioLevel.ATTACKING)
+            {
+                GameStats.Instance.Score += 1000;
+            }else
+            {
+                Player.Level = Player.MarioLevel.ATTACKING;
+            }
 
             Destroy(gameObject);
         }

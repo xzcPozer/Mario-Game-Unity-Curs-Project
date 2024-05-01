@@ -12,6 +12,8 @@ public class CoinFromMysteryBlockJump : MonoBehaviour
     //вызываем анимацию в момент появления
     void Start()
     {
+        GameStats.Instance.Score += 200;
+
         originalPosition = transform.position;
         StartCoroutine(JumpCoin());
     }

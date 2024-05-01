@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+//using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class PlayerMovement : Player
 {
@@ -14,7 +15,11 @@ public class PlayerMovement : Player
     //поле для появления нового персонажа вместо старого
     [SerializeField] public GameObject bigMario;
 
-    private GameController gameController;
+    //для анимации проигрыша
+    int groundCollision;
+    int playerCollision;
+    int wallCollision;
+    int enemyCollision;
 
     //для переключения анимаций
     private enum StateAnimation {idle, run, jump, drag, invulnerableIdle, invulnerableRun, invulnerableJump, invulnerableDrag };
@@ -22,20 +27,31 @@ public class PlayerMovement : Player
     void Start()
     {
         //связываем настройки
+        groundCollision = LayerMask.NameToLayer("Ground");
+        playerCollision = LayerMask.NameToLayer("Player");
+        wallCollision = LayerMask.NameToLayer("Wall");
+        enemyCollision = LayerMask.NameToLayer("Enemy");
+        Physics2D.IgnoreLayerCollision(groundCollision, playerCollision, false);
+        Physics2D.IgnoreLayerCollision(wallCollision, playerCollision, false);
+        Physics2D.IgnoreLayerCollision(enemyCollision, playerCollision, false);
+
         wallCheckRadius = 0.4f;
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
-
-        gameController = GameObject.FindGameObjectWithTag("gameController").GetComponent<GameController>();
     }
 
     void Update()
     {
-        //проверка на падение в пропасть
-        gameController.GameOverCheck(transform.position.y);
-
-        if (!isLevelingUp)
+        //если игрок дошел до флага
+        if (Player.IsLevelComplete)
+        {
+            if (rb.velocity.y < 0)
+                animator.SetInteger("state", (int)StateAnimation.jump);
+            else
+                animator.SetInteger("state", (int)StateAnimation.run);
+        }
+        else if (!isLevelingUp && !IsDeath)
         {
             //запуск таймера для неуязвимости
             if (isInvulnerable)
@@ -53,14 +69,14 @@ public class PlayerMovement : Player
             {
                 WallSlide(rb);
             }
-            else 
+            else
             {
                 Jump(rb, groundCheck, groundLayer);
 
                 UpdateAnimation();
-            }  
+            }
         }
-        else
+        else if(isLevelingUp) 
         {
             transform.position = currentPos;
         }
@@ -70,8 +86,13 @@ public class PlayerMovement : Player
     private void FixedUpdate()
     {
         //если не косается стены
-        if (!OnWall(wallCheck, wallLayer, wallCheckRadius))
-            Move(rb, moveDir);
+        if (!OnWall(wallCheck, wallLayer, wallCheckRadius) && !IsDeath)
+        {
+            if (!Player.IsLevelComplete)
+                Move(rb, moveDir);
+            else
+                MoveToCastle(rb);
+        }
     }
 
     //обновляет анимации игрока
@@ -79,7 +100,11 @@ public class PlayerMovement : Player
     {
         StateAnimation state = StateAnimation.idle;
 
-        if (Player.Level == MarioLevel.BIG)
+        if(Player.Level == MarioLevel.DEATH)
+        {
+            DeathAnimation();
+        }
+        if (Player.Level == MarioLevel.BIG || Player.Level == MarioLevel.ATTACKING)
         {
             isInvulnerable = false;
             bool checkGround = OnGround(groundCheck, groundLayer);
@@ -166,5 +191,17 @@ public class PlayerMovement : Player
 
         //появление большого марио
         Instantiate(bigMario, marioPos, marioRotation);
+    }
+
+    //анимация проигрыша
+    private void DeathAnimation()
+    {
+        Physics2D.IgnoreLayerCollision(groundCollision, playerCollision, true);
+        Physics2D.IgnoreLayerCollision(wallCollision, playerCollision, true);
+        Physics2D.IgnoreLayerCollision(enemyCollision, playerCollision, true);
+
+        IsDeath = true;
+        animator.SetTrigger("Death");
+        rb.velocity = new Vector2(rb.velocity.x, 30f);
     }
 }

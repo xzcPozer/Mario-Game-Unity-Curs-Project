@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public abstract class Player : MonoBehaviour
@@ -23,23 +25,38 @@ public abstract class Player : MonoBehaviour
     //проверка на повышени€ уровн€
     protected bool isLevelingUp = false;
 
+    //проверка на понижение уровн€
+    protected bool isLevelingDown = false;
+
+    //проверка на смерть
+    public static bool IsDeath { get; set; } = false;
+
     //проверка на неу€звимость
     protected bool isInvulnerable = false;
     
     //таймер дл€ неу€звимости
     protected float invulnerableTime = 10f;
 
-    //проверка на понижени€ уровн€
-    //protected bool isLevelingDown = false;
-
     //дл€ метода LevelUp() или LevelDown()
     protected Vector3 currentPos;
 
     //уровень марио
-    public enum MarioLevel { STANDARD, BIG, ATTACKING, INVULNERABLE }
+    public enum MarioLevel { DEATH, STANDARD, BIG, ATTACKING, INVULNERABLE }
 
     //свойство дл€ замены уровн€ у персонажа
     public static MarioLevel Level { get; set; } = MarioLevel.STANDARD;
+
+    //свойство дл€ прохождени€ уровн€
+    public static bool IsLevelComplete { get; set; } = false;
+
+    //скорость дл€ передвижени€ до замка
+    private float castleSpeed = 3.5f;
+
+    //понижение уровн€ марио
+    public static void LevelDown()
+    {
+        Level = Level - 1;
+    }
 
     //прыжок персонажа
     protected void Jump(Rigidbody2D rb, Transform groundCheck, LayerMask groundLayer)
@@ -63,6 +80,15 @@ public abstract class Player : MonoBehaviour
     protected void Move(Rigidbody2D rb, Vector2 moveDir)
     {
         rb.velocity = new Vector2(moveDir.x * speed, rb.velocity.y);
+    }
+
+    //дл€ передвижени€ до замка
+    protected void MoveToCastle(Rigidbody2D rb)
+    {
+        if (rb.velocity.y < 0)
+            rb.velocity = new Vector2(0f, rb.velocity.y * .1f);
+        else 
+            rb.velocity = new Vector2(castleSpeed, rb.velocity.y);
     }
 
     //скольжение по стенам

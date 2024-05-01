@@ -282,8 +282,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 320
   bulletSpawn: {fileID: 4711571863935991288}
+  bigMario: {fileID: 3599597550846385344, guid: ac97389a0660b4e4494633d3d57a6a9e, type: 3}
   bullet: {fileID: 663846055496439593, guid: f7fdb14f26905da4e9977c207b5266d3, type: 3}
-  fireRate: 1
 --- !u!95 &8637519307488127401
 Animator:
   serializedVersion: 5
