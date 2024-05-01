@@ -45,7 +45,7 @@ GameObject:
   - component: {fileID: 5911853989665494376}
   - component: {fileID: 6084082374525911657}
   - component: {fileID: 2033128807252859110}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -205,11 +205,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b613b74ddbdc68d4fa429b6588c39f8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wallCheck: {fileID: 0}
+  wallCheck: {fileID: 928517509376207360}
   wallLayer:
     serializedVersion: 2
     m_Bits: 320
-  groundCheck: {fileID: 0}
+  groundCheck: {fileID: 4537858198967401775}
   groundLayer:
     serializedVersion: 2
     m_Bits: 320

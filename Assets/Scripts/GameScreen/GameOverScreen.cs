@@ -7,16 +7,11 @@ public class GameOverScreen : MonoBehaviour
 {
     private const float screenTime = 5f;
 
-    private void Start()
-    {
-        gameObject.SetActive(false);
-    }
-
     public IEnumerator GameOver()
     {
         gameObject.SetActive(true);
         yield return new WaitForSeconds(screenTime);
         gameObject.SetActive(false);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);//во второй версии загружается главное меню
+        SceneTransition.MainScene();
     }
 }

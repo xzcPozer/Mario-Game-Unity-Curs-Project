@@ -7,6 +7,10 @@ TagManager:
   - ground
   - wall
   - gameController
+  - marioBullet
+  - Enemy
+  - Bridge
+  - Audio
   layers:
   - Default
   - TransparentFX

@@ -13,9 +13,11 @@ public class PlayerBigMovement : Player
     //атакующий марио
     [SerializeField] private GameObject attackingMario;
 
-    private CircleCollider2D circleCollider;
+    //стандартный марио
+    [SerializeField] private GameObject standardMario;
 
-    private GameController gameController;
+    private CircleCollider2D circleCollider;
+    private BoxCollider2D boxCollider;
 
     //для переключения анимаций
     private enum StateAnimation { idle, run, jump, squat, invulnerableIdle, invulnerableRun, invulnerableJump, invulnerableSquat };
@@ -29,16 +31,24 @@ public class PlayerBigMovement : Player
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         circleCollider = GetComponent<CircleCollider2D>();
-        gameController = GameObject.FindGameObjectWithTag("gameController").GetComponent<GameController>();
+        boxCollider = GetComponent<BoxCollider2D>();
+        if(Player.Level != MarioLevel.ATTACKING)
+            Player.Level = MarioLevel.BIG;
     }
 
    
     void Update()
     {
-        //проверка на падение в пропасть
-        gameController.GameOverCheck(transform.position.y);
+        //если игрок дошел до флага
+        if (Player.IsLevelComplete)
+        {
+            if (rb.velocity.y < 0)
+                animator.SetInteger("state", (int)StateAnimation.jump);
+            else
+                animator.SetInteger("state", (int)StateAnimation.run);
+        }
 
-        if (!isLevelingUp)
+        else if (!isLevelingUp && !isLevelingDown)
         {
             //запуск таймера для неуязвимости
             if (isInvulnerable)
@@ -73,8 +83,12 @@ public class PlayerBigMovement : Player
     {
         //если не косается стены
         if (!OnWall(wallCheck, wallLayer, wallCheckRadius))
-            Move(rb, moveDir);
-
+        {
+            if (!Player.IsLevelComplete)
+                Move(rb, moveDir);
+            else
+                MoveToCastle(rb);
+        }
     }
 
     public override void UpdateAnimation()
@@ -85,6 +99,10 @@ public class PlayerBigMovement : Player
         {
             isInvulnerable = false;
             StartCoroutine(LevelUp(OnGround(groundCheck,groundLayer)));
+        }
+        else if(Player.Level == MarioLevel.STANDARD)
+        {
+            StartCoroutine(LevelDown(OnGround(groundCheck, groundLayer)));
         }
         else if (Player.Level == MarioLevel.INVULNERABLE)
         {
@@ -120,7 +138,7 @@ public class PlayerBigMovement : Player
                 state = StateAnimation.invulnerableJump;
             }
         }
-        else
+        else if (Player.Level == MarioLevel.BIG)
         {
             if (moveDir.y >= 0)
             {
@@ -185,5 +203,39 @@ public class PlayerBigMovement : Player
 
         //появление большого марио
         Instantiate(attackingMario, marioPos, marioRotation);
+    }
+
+    //метод для понижения марио до STANDARD
+    private IEnumerator LevelDown(bool checkGround)
+    {
+        isLevelingDown = true;
+
+        //для фиксирования позиции во время проигрыша анимации
+        currentPos = transform.position;
+
+        //если на земле нужно поднять игрока, чтобы он не проваливался сквозь платформу
+        if (checkGround)
+            currentPos += new Vector3(0, 0.5f, 0);
+
+        //включаем анимацию перехода на стандартного марио
+        animator.SetTrigger("LevelDown");
+
+        circleCollider.enabled = false;
+        boxCollider.enabled = false;
+
+        //ждем окончания анимации
+        yield return new WaitForSeconds(1f);
+
+        isLevelingDown = false;
+
+        //для передачи данных о позиции на карте
+        Vector3 marioPos = transform.position;
+        Quaternion marioRotation = transform.rotation;
+
+        //удаление большого марио
+        Destroy(gameObject);
+
+        //появление стандартного марио
+        Instantiate(standardMario, marioPos, marioRotation);
     }
 }
